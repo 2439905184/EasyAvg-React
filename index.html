@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <!--<script src="https://cdn.staticfile.org/react/16.4.0/umd/react.development.js"></script>
+    <script src="https://cdn.staticfile.org/react-dom/16.4.0/umd/react-dom.development.js"></script>
+    <script src="https://cdn.staticfile.org/babel-standalone/6.26.0/babel.min.js"></script>
+   -->
+    <title>EasyAvg-React</title>
+</script>
+<style>
+    /*前景*/
+    #fg
+    {
+        width: 100%;
+        position: absolute;
+        display: flex;
+        justify-content: center;
+        top: 5px;
+        bottom: 5px;
+        /* z-index: 2; */
+        min-width: 600px;
+        overflow: hidden;
+    }
+    #bg
+    {
+        width: 100%;
+        position: absolute;
+        display: flex;
+        justify-content: center;
+        top: 0;
+        bottom: 0;
+        min-width: 600px;
+        overflow: hidden;
+        z-index: -1;
+    }
+    #dialog
+    {
+        background-color: rgba(86,108,115,0.8);
+        background-color: rgba(0,0,0,0.5);
+        padding: 15px 15px 15px 15px;
+        width: 100%;
+        margin: 0 0 0 0;
+        z-index: 3;
+        background-image: linear-gradient(rgba(255,255,255,0) 0%,rgba(255,255,255,0) 75%,rgba(255,255,255,0.3)100%);
+        box-shadow: 5px 5px 10px rgb(0 0 0 / 30%);
+        border-radius: 10px;
+    }
+    #bottomBox
+    {
+        position: absolute;
+        bottom: 0;
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        height: 35%;
+    }
+    #title
+    {
+        color: white;
+        font-size: x-large;
+        /* background-color: rgba(255,255,255,0.7); */
+        padding: 3px 7px 3px 7px;
+        /* border-radius: 5px; */
+        border-bottom: 2px solid rgba(255,255,255,0.5);
+        width: 30%;
+    }
+    #dialog_text
+    {
+        padding: 15px 0 0 0;
+        color: white;
+        font-size: 200%;
+        overflow: hidden;
+        height: 60%;
+    }
+    #layer
+    {
+        z-index: 30;
+        /*width: 100%;
+        position: absolute;
+        display: flex;
+        justify-content: left;
+        top: 5px;
+        bottom: 5px;*/
+        /* z-index: 2; */
+        min-width: 600px;
+        overflow: hidden;
+    }
+</style>
+<script src='thirdparty/vue.global.js'></script>
+<script src="jquery-3.6.0.js"></script>
+<script src="module/count.js"></script>
+<script src="module/tokenizer.js"></script>
+<script src="module/init.js"></script>
+</head>
+<body>
+    <audio id="bgm"></audio>
+    <h1 style="text-align: center;">Hello, EasyAvg-Vue!</h1>
+    <h2 style="text-align: center;"><a href="https://github.com/little-game-and-simple-software/EasyAvg.js" target="_blank">1.0版本在此</a></h2>
+    <div id="root">
+        <div id="layer"><video id="Easy_video" contorls="true" v-bind:src="video"></video></div>
+        <div id="bg">
+            <img v-bind:src="bg">
+        </div>
+        <div id="fg">
+            <img v-bind:src="ch" alt="人物">
+        </div>
+        <div id="bottomBox">
+            <div id="dialog" v-on:click="next">
+                <div id="title"><span>{{title}}</span></div>
+                <div id="dialog_text">{{content}}</div>
+             </div>
+        </div>
+    </div>
+    <script>
+      //const Engine = new EasyAvg()
+      const tokenizer = new EasyAvgTokenizer()
+      function execute_line(line_index)
+      {
+        var json = JSON.parse(localStorage.getItem("EasyAvg"))
+        lines = tokenizer.input(json.init_script)
+        //console.debug("文件的所有行:"+lines)
+        var splited_line = tokenizer.tokenizer(lines[line_index].toString())
+        if(splited_line[0] == "@bg")
+        {
+            console.log("更换背景")
+            console.debug(splited_line)
+            //this.bg = splited_line[1]
+        }
+        return splited_line
+      }
+      const HelloVueApp = {
+        data()
+        {
+          return {
+            message: 'Hello Vue!!',
+            msg: 'vue',
+            dat: "char.png",
+            title: "测试标题",
+            content: "测试文本内容",
+            bg: "022.jpg",
+            ch: "",
+            video: "",
+            index: 0
+          }
+        },
+        methods:
+        {
+            next: function()
+            {
+                var sp = execute_line(this.index)
+                console.debug(sp)
+                if(sp[0] == "@bg")
+                {
+                    this.bg = sp[1]
+                }
+                if(sp[0] == "@ch")
+                {
+                    if(sp[1] == "none")
+                    {
+                        this.ch = ""
+                    }
+                    else
+                    {
+                        this.ch = sp[1]
+                    }
+                   
+                }
+                if(sp[0] =="@t")
+                {
+                    this.title   = sp[1]
+                    this.content = sp[2]
+                }
+                if(sp[0] == "@bgm")
+                {
+                    $("audio").attr("src",sp[1])
+                    $("audio")[0].play()
+                }
+                if(sp[0] == "@video")
+                {
+                    this.video = sp[1]
+                    $("audio")[0].pause()
+                    setTimeout(() => {
+                        $("#Easy_video")[0].play()
+                    }, 1000);
+                }
+                this.index +=1
+                //console.log(this.index)
+            }
+        }
+      }
+      const vm = Vue.createApp(HelloVueApp).mount('#root')
+      //vm.$data.msg = "adobe"
+      </script>
+</body>
+</html>

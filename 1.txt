@@ -1,0 +1,13 @@
+@bg 050.jpg
+@t 标题 内容
+@t 标题 内容2
+@t 切换背景功能 大召唤！
+@bg 022.jpg
+@t 切换人物 千夜前辈出场！
+@ch c01.png
+@t 播放音乐 好听的音乐少不了
+@ch none
+@bgm th.mp3
+@t 东方永夜抄 节选音乐原曲
+@t 播放视频 跟着mmd学跳舞:D
+@video wavefile节拍器.mp4
